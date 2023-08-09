@@ -3,7 +3,7 @@ Um "mini" simulador de sistemas de arquivos
 
 Crie e exclua arquivos e diretórios;
 
-Realize a listagem de arquivos de um diretório;
+Realiza a listagem de arquivos de um diretório;
 
 A cada operação realizada pelo usuário, a alocação deve ser simulada (não apenas mostrar a interface para o usuário, mas também como ficaria em baixo nível - alocação no SA - por exemplo, mostrando em que bloco cada arquivo e diretório se encontra);
 
