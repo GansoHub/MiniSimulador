@@ -11,3 +11,26 @@
 #(na mesma unidade da memória física, para facilitar);
 #Indicar se há fragmentação interna ou externa (quando ocorrer).
 
+import os
+arquivo = 0
+
+class arquivo:
+    def __init__(self, nome, tamanho):
+        self.nome = nome
+        self.tamanho = tamanho
+        self.proxima_aloca = None
+
+class diretorio:
+    def __init__(self, nome):
+        self.nome = nome
+        self.arquivos = []
+
+
+def criararquivo(arquivo):
+ nome = str(input("digite o nome do arquivo: "))
+ tamanho = str(input("digite o tamanho do arquivo: "))
+ print (arquivo)
+
+ def bloco(bloco):
+    arquivo = this.arquivo
+
