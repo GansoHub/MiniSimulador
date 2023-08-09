@@ -1,7 +1,7 @@
 # MiniSimulador
 Um "mini" simulador de sistemas de arquivos
 
-Crie e exclua arquivos e diretórios;
+Cria e exclue arquivos e diretórios;
 
 Realiza a listagem de arquivos de um diretório;
 
