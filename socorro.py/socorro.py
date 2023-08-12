@@ -2,7 +2,7 @@ class File:
     def __init__(self, name, size):
         self.name = name
         self.size = size
-        self.next_block = None
+        self.blocks = []
 
 class Directory:
     def __init__(self, name):
@@ -11,42 +11,6 @@ class Directory:
         self.subdirectories = []
 
 class FileSystemSimulator:
-    def __init__(self, memory_size, block_size):
-        self.memory_size = memory_size
-        self.block_size = block_size
-        self.memory = [None] * (memory_size // block_size)
-        self.root_directory = Directory("root")
-
-    def create_file(self, directory, name, size):
-        new_file = File(name, size)
-        blocks_needed = (size + self.block_size - 1) // self.block_size
-        allocated_blocks = 0
-
-        for i in range(len(self.memory)):
-            if self.memory[i] is None:
-                self.memory[i] = new_file
-                allocated_blocks += 1
-                if allocated_blocks == blocks_needed:
-                    break
-
-        if allocated_blocks < blocks_needed:
-            print("Fragmentation detected!")
-
-        directory.files.append(new_file)
-        print(f"File '{name}' created with {size} bytes.")
-
-    def create_directory(self, parent_directory, name):
-        new_directory = Directory(name)
-        parent_directory.subdirectories.append(new_directory)
-        print(f"Directory '{name}' created.")
-
-    def list_contents(self, directory):
-        print(f"Contents of '{directory.name}':")
-        for file in directory.files:
-            print(f"- File: {file.name} ({file.size} bytes)")
-        for subdirectory in directory.subdirectories:
-            print(f"- Directory: {subdirectory.name}")
-
     def __init__(self, memory_size, block_size):
         self.memory_size = memory_size
         self.block_size = block_size
@@ -68,7 +32,7 @@ class FileSystemSimulator:
         self.free_blocks.extend(blocks)
         self.free_blocks.sort()
 
-    def create_fragmented_file(self, directory, name, size):
+    def create_file(self, directory, name, size):
         blocks_needed = (size + self.block_size - 1) // self.block_size
         allocated_blocks = self.allocate_blocks(blocks_needed)
 
@@ -80,6 +44,18 @@ class FileSystemSimulator:
         new_file.blocks = allocated_blocks
         directory.files.append(new_file)
         print(f"File '{name}' created with {size} bytes. Allocated blocks: {allocated_blocks}")
+
+    def create_directory(self, parent_directory, name):
+        new_directory = Directory(name)
+        parent_directory.subdirectories.append(new_directory)
+        print(f"Directory '{name}' created.")
+
+    def list_contents(self, directory):
+        print(f"Contents of '{directory.name}':")
+        for file in directory.files:
+            print(f"- File: {file.name} ({file.size} bytes)")
+        for subdirectory in directory.subdirectories:
+            print(f"- Directory: {subdirectory.name}")
 
     def delete_file(self, directory, name):
         found_file = None
@@ -116,27 +92,6 @@ class FileSystemSimulator:
             self.recursively_deallocate_directory_blocks(subdirectory)
 
 if __name__ == "__main__":
-    # ... (código existente aqui) ...
-
-    while True:
-        command = input("Enter a command (create_file, create_directory, list_contents, delete_file, delete_directory): ")
-
-        if command == "create_file":
-            # ... (código existente aqui) ...
-        elif command == "create_directory":
-            # ... (código existente aqui) ...
-        elif command == "list_contents":
-            # ... (código existente aqui) ...
-        elif command == "delete_file":
-            name = input("Enter file name: ")
-            fs_simulator.delete_file(current_directory, name)
-        elif command == "delete_directory":
-            name = input("Enter directory name: ")
-            fs_simulator.delete_directory(current_directory, name)
-        else:
-            print("Invalid command. Try again.")
-
-if __name__ == "__main__":
     memory_size = 1024  # Example memory size in bytes
     block_size = 64     # Example block size in bytes
 
@@ -144,7 +99,7 @@ if __name__ == "__main__":
     current_directory = fs_simulator.root_directory
 
     while True:
-        command = input("Enter a command (create_file, create_directory, list_contents): ")
+        command = input("Enter a command (create_file, create_directory, list_contents, delete_file, delete_directory): ")
 
         if command == "create_file":
             name = input("Enter file name: ")
@@ -155,6 +110,11 @@ if __name__ == "__main__":
             fs_simulator.create_directory(current_directory, name)
         elif command == "list_contents":
             fs_simulator.list_contents(current_directory)
+        elif command == "delete_file":
+            name = input("Enter file name: ")
+            fs_simulator.delete_file(current_directory, name)
+        elif command == "delete_directory":
+            name = input("Enter directory name: ")
+            fs_simulator.delete_directory(current_directory, name)
         else:
-            print("Invalid command. Try again.") 
-
+            print("Invalid command. Try again.")
