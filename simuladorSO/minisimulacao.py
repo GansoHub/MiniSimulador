@@ -49,17 +49,17 @@ class ArquivoSystemSimulator:
         print(f"Uso de memoria: {len(self.memoria) * self.bloco_tamanho - len(self.blocos_livres) * self.bloco_tamanho} bytes / {self.tamanho_memoria} bytes")
 
     def criar_arquivo(self, diretorio, nome, tamanho):
-        # Check if the arquivo nome already exists in the current diretorio's arquivos
+        #Checa se o nome do arquivo já existe nos arquivos pertencentes ao atual diretório
         if diretorio and any(arquivo.nome == nome for arquivo in diretorio.arquivos):
             print(f"Arquivo '{nome}' ja existe no diretorio '{diretorio.nome}'.")
             return
         
-        # Check if the Arquivo nome is the same as any subdiretorio nome
+        # Checa se o nome do arquivo é o mesmo de algum subdiretório que já existe
         if diretorio and any(subdir.nome == nome for subdir in diretorio.subdiretorios):
             print(f"Arquivo '{nome}' não pode ter o mesmo nome que um subdiretorio no diretorio '{diretorio.nome}'.")
             return
         
-        # Check if the arquivo nome is the same as the diretorio nome it's being alocados in
+        # Checa se o nome do arquivo é o mesmo que o nome de um diretório já alocado
         if diretorio and diretorio.nome == nome:
             print("Não pode alocar um arquivo com o mesmo nome que o diretorio.")
             return
@@ -82,12 +82,12 @@ class ArquivoSystemSimulator:
             print(f"Arquivo '{nome}' criado como um arquivo independente medindo {tamanho} bytes. Blocos alocados: {blocos_alocados}")
 
     def criar_diretorio(self, parent_diretorio, nome):
-        # Check if the diretorio nome already exists in the current diretorio
+        # Checa se o diretório possui um nome já existente no atual diretorio
         if any(subdir.nome == nome for subdir in parent_diretorio.subdiretorios):
             print(f"'{nome}'  já existe como um diretório nessa sessão.")
             return
 
-        # Check if a arquivo with the same nome exists in the parent diretorio
+        # Checa se já existe um arquivo com o mesmo nome que o diretório nessa sessão
         if any(arquivo.nome == nome for arquivo in parent_diretorio.arquivos):
             print(f"Não se pode criar o diretorio '{nome}', já existe um arquivo com o mesmo nome nessa sessão.")
             return
@@ -151,8 +151,8 @@ class ArquivoSystemSimulator:
         return None
 
 if __name__ == "__main__":
-    tamanho_memoria = 1024  # Example memoria tamanho in bytes
-    bloco_tamanho = 64     # Example bloco tamanho in bytes
+    tamanho_memoria = 1024  
+    bloco_tamanho = 64 
 
     fs_simulator = ArquivoSystemSimulator(tamanho_memoria, bloco_tamanho)
     current_diretorio = fs_simulator.raiz_diretorio
@@ -190,6 +190,7 @@ if __name__ == "__main__":
         elif command == "deletar_diretorio":
             nome = input("Digite o nome do diretorio: ")
             fs_simulator.deletar_diretorio(current_diretorio, nome)
+
 
         else:
             print("Comando inválido.")
