@@ -12,7 +12,7 @@ class Diretorio:
         self.bloco = bloco
 
 class ArquivoSystemSimulator:
-    def __init__(self, tamanho_memoria, bloco_tamanho):
+    def __init__(self, tamanho_memoria, bloco_tamanho, num_discos):
         self.tamanho_memoria = tamanho_memoria
         self.bloco_tamanho = bloco_tamanho
         self.num_discos = num_discos  # Atualização
@@ -21,29 +21,55 @@ class ArquivoSystemSimulator:
         self.discos = [[] for _ in range(num_discos)]  # Atualização: Lista de discos
         self.raiz_diretorio = Diretorio("raiz", self.alocar_blocos(1)[0])
     
+    #ATUALIZAÇÃO: Inicializar os outros discos
+        for _ in range(1, num_discos):
+            self.discos[_] = self.blocos_livres.copy()
+
+    #ATUALIZAÇÃO: Alocar blocos no disco escolhido
+    def alocar_blocos_em_disco(self, num_blocos, disco):
+        if len(self.discos[disco]) < num_blocos:
+            print("Não há blocos livres o bastante para alocação no disco escolhido.")
+            return None
+
+        blocos_alocados = self.discos[disco][:num_blocos]
+        self.discos[disco] = self.discos[disco][num_blocos:]
+
+        return blocos_alocados
+    
+    #ATUALIZAÇÃO: Função para criar o arquivo no disco escolhido.
     def criar_arquivo_em_disco(self, diretorio, nome, tamanho, disco):
         if disco < 0 or disco >= self.num_discos:
             print("Disco inválido.")
             return
 
         blocos_necessarios = (tamanho + self.bloco_tamanho - 1) // self.bloco_tamanho
-        blocos_alocados = self.discos[disco][:blocos_necessarios]
-        self.discos[disco] = self.discos[disco][blocos_necessarios:]
+        blocos_alocados = self.alocar_blocos_em_disco(blocos_necessarios, disco)
 
-        if len(blocos_alocados) < blocos_necessarios:
+        if blocos_alocados is None:
             print("Fragmentacao detectada! Não há blocos o bastante para alocação.")
             return
-
+        
         new_arquivo = Arquivo(nome, tamanho)
         new_arquivo.blocos = blocos_alocados
     
         if diretorio:
             diretorio.arquivos.append(new_arquivo)
-            print(f"Arquivo '{nome}' criado medindo {tamanho} bytes no diretorio '{diretorio.nome}' no disco {disco}. Blocos alocados: {blocos_alocados}")
+            print(f"Arquivo '{nome}' criado medindo {tamanho} bytes no diretório '{diretorio.nome}' no disco {disco}. Blocos alocados: {blocos_alocados}")
         else:
             self.raiz_diretorio.arquivos.append(new_arquivo)
             print(f"Arquivo '{nome}' criado como um arquivo independente medindo {tamanho} bytes no disco {disco}. Blocos alocados: {blocos_alocados}")
-    
+
+    # ATUALIZAÇÃO        
+    def criar_diretorio_em_disco(self, parent_diretorio, nome, disco):
+        if disco < 0 or disco >= self.num_discos:
+            print("Disco inválido.")
+            return
+
+        bloco = self.alocar_blocos_em_disco(1, disco)[0]
+        new_diretorio = Diretorio(nome, bloco)
+        parent_diretorio.subdiretorios.append(new_diretorio)
+        print(f"Diretório '{nome}' criado no bloco {bloco} do disco {disco}.")
+
     # Atualização
     def nivel_raid(self):
         return "RAID 0"  # Retorna o nível de RAID implementado
@@ -103,6 +129,16 @@ class ArquivoSystemSimulator:
             if blocos_alocados is None:
                 print("Fragmentacao detectada! Não há blocos o bastante para alocação.")
                 return
+            
+            new_arquivo = Arquivo(nome, tamanho)
+            new_arquivo.blocos = blocos_alocados
+
+            if diretorio:
+                diretorio.arquivos.append(new_arquivo)
+                print(f"Arquivo '{nome}' criado medindo {tamanho} bytes no diretório '{diretorio.nome}' no Disco {disco}. Blocos alocados: {blocos_alocados}")
+            else:
+                self.raiz_diretorio.arquivos.append(new_arquivo)
+                print(f"Arquivo '{nome}' criado como um arquivo independente medindo {tamanho} bytes no Disco {disco}. Blocos alocados: {blocos_alocados}")
 
         #Checa se o nome do arquivo já existe nos arquivos pertencentes ao atual diretório
         if diretorio and any(arquivo.nome == nome for arquivo in diretorio.arquivos):
@@ -137,6 +173,16 @@ class ArquivoSystemSimulator:
             print(f"Arquivo '{nome}' criado como um arquivo independente medindo {tamanho} bytes. Blocos alocados: {blocos_alocados}")
 
     def criar_diretorio(self, parent_diretorio, nome):
+
+        escolher_disco = input("Deseja escolher o disco para alocar o diretório? (s/n): ").lower()
+        if escolher_disco == "s":
+            disco = int(input(f"Escolha o disco (0 a {self.num_discos - 1}): "))
+            self.criar_diretorio_em_disco(parent_diretorio, nome, disco)
+        else:
+            bloco = self.alocar_blocos(1)[0]
+            new_diretorio = Diretorio(nome, bloco)
+            parent_diretorio.subdiretorios.append(new_diretorio)
+            print(f"Diretório '{nome}' criado no bloco {bloco} do Disco 0.")
         # Checa se o diretório possui um nome já existente no atual diretorio
         if any(subdir.nome == nome for subdir in parent_diretorio.subdiretorios):
             print(f"'{nome}'  já existe como um diretório nessa sessão.")
@@ -210,7 +256,7 @@ if __name__ == "__main__":
     bloco_tamanho = 64 
     num_discos = 8  # Atualização: Número de discos na configuração RAID 0
 
-    fs_simulator = ArquivoSystemSimulator(tamanho_memoria, bloco_tamanho)
+    fs_simulator = ArquivoSystemSimulator(tamanho_memoria, bloco_tamanho, num_discos)
     current_diretorio = fs_simulator.raiz_diretorio
 
     while True:
