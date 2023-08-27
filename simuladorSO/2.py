@@ -1,3 +1,9 @@
+class Disco:
+    def __init__(self, id):
+        self.id = id
+        self.memoria = []
+        self.blocos_livres = []
+
 class Arquivo:
     def __init__(self, nome, tamanho):
         self.nome = nome
@@ -12,32 +18,42 @@ class Diretorio:
         self.bloco = bloco
 
 class ArquivoSystemSimulator:
-    def __init__(self, tamanho_memoria, bloco_tamanho):
+    def __init__(self, tamanho_memoria, bloco_tamanho, num_discos):
         self.tamanho_memoria = tamanho_memoria
         self.bloco_tamanho = bloco_tamanho
-        self.memoria = [None] * (tamanho_memoria // bloco_tamanho)
-        self.blocos_livres = list(range(len(self.memoria)))
-        self.raiz_diretorio = Diretorio("raiz", self.alocar_blocos(1)[0])
+        self.num_discos = num_discos
+        self.discos = [Disco(i) for i in range(num_discos)]
+        self.raiz_diretorio = None
+        self.init_discos()
 
-    def alocar_blocos(self, num_blocos):
-        if len(self.blocos_livres) < num_blocos:
-            print("Não há blocos livres o bastante para a alocacao")
-            return None
+def alocar_blocos(self, num_blocos):
+    blocos_alocados = []
+    for disco in self.discos:
+        if len(disco.blocos_livres) >= num_blocos:
+            blocos_alocados = disco.blocos_livres[:num_blocos]
+            disco.blocos_livres = disco.blocos_livres[num_blocos:]
+            break
+    
+    if not blocos_alocados:
+        print("Não há blocos livres o bastante para alocacao")
+        return None
 
-        blocos_alocados = self.blocos_livres[:num_blocos]
-        self.blocos_livres = self.blocos_livres[num_blocos:]
+    for disco in self.discos:
+        for bloco in blocos_alocados:
+            disco.memoria[bloco] = True
 
         # Display Uso de memoria
         print(f"Blocos alocados: {blocos_alocados}")
-        print(f"Blocos livres: {self.blocos_livres}")
-        print(f"Uso de memoria: {len(blocos_alocados) * self.bloco_tamanho} bytes / {self.tamanho_memoria} bytes")
-
-        if len(blocos_alocados) < num_blocos:
-            print(f"Fragmentacao Interna: {num_blocos - len(blocos_alocados)} blocos")
-        else:
-            print("Sem Fragmentacao Interna")
+        print(f"Uso de memoria em cada disco:")
+        for disco in self.discos:
+            print(f"Disco {disco.id}: {disco.memoria.count(True) * self.bloco_tamanho} bytes / {self.tamanho_memoria} bytes")
+        print(f"Uso de memoria total: {sum(disco.memoria.count(True) for disco in self.discos) * self.bloco_tamanho} bytes / {self.num_discos * self.tamanho_memoria} bytes")
 
         return blocos_alocados
+
+    def init_discos(self):
+        for disco in self.discos:
+            disco.blocos_livres = list(range(self.tamanho_memoria // self.bloco_tamanho))
 
     def desalocar_blocos(self, blocos):
         self.blocos_livres.extend(blocos)
@@ -151,14 +167,16 @@ class ArquivoSystemSimulator:
         return None
 
 if __name__ == "__main__":
-    tamanho_memoria = 1024  
-    bloco_tamanho = 64 
+    tamanho_memoria = 2048  
+    bloco_tamanho = 256 
+    num_discos = 12
 
-    fs_simulator = ArquivoSystemSimulator(tamanho_memoria, bloco_tamanho)
+    fs_simulator = ArquivoSystemSimulator(tamanho_memoria, bloco_tamanho, num_discos)
     current_diretorio = fs_simulator.raiz_diretorio
 
     while True:
-        command = input(f"Atual diretorio: {current_diretorio.nome} (bloco: {current_diretorio.bloco})\n"
+        command = command = input(f"Atual diretório: {current_diretorio.nome if current_diretorio else 'raiz'} "
+                        f"(bloco: {current_diretorio.bloco if current_diretorio else 'N/A'})\n"
                         "Insira um comando (criar_arquivo, criar_diretorio, listar_conteudo, deletar_arquivo, deletar_diretorio): ")
 
         if command == "criar_arquivo":
@@ -175,13 +193,13 @@ if __name__ == "__main__":
                     print(f"Diretorio '{diretorio_nome}' não encontrado.")
             else:
                 fs_simulator.criar_arquivo(None, nome, tamanho)
-                
+
         elif command == "criar_diretorio":
-            nome = input("Digite o nome do diretorio: ")
-            fs_simulator.criar_diretorio(current_diretorio, nome)
+           nome = input("Digite o nome do diretorio: ")
+           fs_simulator.criar_diretorio(current_diretorio, nome)
 
         elif command == "listar_conteudo":
-            fs_simulator.listar_conteudo(current_diretorio)
+           fs_simulator.listar_conteudo(current_diretorio)
 
         elif command == "deletar_arquivo":
             nome = input("Digite o nome do arquivo: ")
@@ -191,8 +209,5 @@ if __name__ == "__main__":
             nome = input("Digite o nome do diretorio: ")
             fs_simulator.deletar_diretorio(current_diretorio, nome)
 
-
         else:
             print("Comando inválido.")
-
-            #No código que estou enviando, demonstre a alocação do nível de Raid Raid 2, mostrando a alocação em discos distintos, adicione cerca de 3 novos discos
