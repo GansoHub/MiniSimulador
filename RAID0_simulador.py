@@ -15,13 +15,13 @@ class ArquivoSystemSimulator:
     def __init__(self, tamanho_memoria, bloco_tamanho, num_discos):
         self.tamanho_memoria = tamanho_memoria
         self.bloco_tamanho = bloco_tamanho
-        self.num_discos = num_discos  # Atualização
+        self.num_discos = num_discos  #ATUALIZAÇÃO: Número de discos.
         self.memoria = [None] * (tamanho_memoria // bloco_tamanho)
         self.blocos_livres = list(range(len(self.memoria)))
-        self.discos = [[] for _ in range(num_discos)]  # Atualização: Lista de discos
+        self.discos = [[] for _ in range(num_discos)]  #ATUALIZAÇÃO: Lista de discos
         self.raiz_diretorio = Diretorio("raiz", self.alocar_blocos(1)[0])
     
-    #ATUALIZAÇÃO: Inicializar os outros discos
+    #ATUALIZAÇÃO: Inicializar os discos
         for _ in range(1, num_discos):
             self.discos[_] = self.blocos_livres.copy()
 
@@ -59,7 +59,7 @@ class ArquivoSystemSimulator:
             self.raiz_diretorio.arquivos.append(new_arquivo)
             print(f"Arquivo '{nome}' criado como um arquivo independente medindo {tamanho} bytes no disco {disco}. Blocos alocados: {blocos_alocados}")
 
-    # ATUALIZAÇÃO        
+    #ATUALIZAÇÃO: Função para criar o diretório no disco escolhido.       
     def criar_diretorio_em_disco(self, parent_diretorio, nome, disco):
         if disco < 0 or disco >= self.num_discos:
             print("Disco inválido.")
@@ -70,7 +70,7 @@ class ArquivoSystemSimulator:
         parent_diretorio.subdiretorios.append(new_diretorio)
         print(f"Diretório '{nome}' criado no bloco {bloco} do disco {disco}.")
 
-    # Atualização
+    #ATUALIZAÇÃO: implementação do RAID 0
     def nivel_raid(self):
         return "RAID 0"  # Retorna o nível de RAID implementado
 
@@ -91,7 +91,7 @@ class ArquivoSystemSimulator:
         print(f"Blocos livres: {self.blocos_livres}")
         print(f"Uso de memoria: {len(blocos_alocados) * self.bloco_tamanho} bytes / {self.tamanho_memoria} bytes")
 
-        # Atualização: Mostra a alocação nos discos
+        #ATUALIZAÇÃO: Mostra a alocação nos discos
         for i, disco in enumerate(self.discos):
             print(f"Disco {i}: {disco}")
 
@@ -106,7 +106,7 @@ class ArquivoSystemSimulator:
         self.blocos_livres.extend(blocos)
         self.blocos_livres.sort()
 
-         # Atualização: Remove os blocos dos discos
+         #ATUALIZAÇÃO: Remove os blocos dos discos
         for bloco in blocos:
             for disco in self.discos:
                 if bloco in disco:
@@ -254,7 +254,7 @@ class ArquivoSystemSimulator:
 if __name__ == "__main__":
     tamanho_memoria = 1024  
     bloco_tamanho = 64 
-    num_discos = 8  # Atualização: Número de discos na configuração RAID 0
+    num_discos = 8  #ATUALIZAÇÃO: Número de discos na configuração RAID 0
 
     fs_simulator = ArquivoSystemSimulator(tamanho_memoria, bloco_tamanho, num_discos)
     current_diretorio = fs_simulator.raiz_diretorio
